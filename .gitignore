@@ -1,2 +1,11 @@
 # Mac directory files
 *.DS_Store
+
+# Py cache
+hybcast3/__pycache__
+hybcast3/ESRNN/__pycache__
+hybcast3/Transformer/__pycache__
+hybcast3/Utils/__pycache__
+
+# IPYNB file
+ESTransformer3.ipynb
