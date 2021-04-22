@@ -2,10 +2,7 @@
 *.DS_Store
 
 # Py cache
-hybcast3/__pycache__
-hybcast3/ESRNN/__pycache__
-hybcast3/Transformer/__pycache__
-hybcast3/Utils/__pycache__
-
-# IPYNB file
-ESTransformer3.ipynb
+hybcast3/ESTransformer/__pycache__
+hybcast3/ESTransformer/ESRNN/__pycache__
+hybcast3/ESTransformerTransformer/__pycache__
+hybcast3/ESTransformer/Utils/__pycache__
