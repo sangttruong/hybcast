@@ -1,11 +1,11 @@
 import torch
 import torch.nn as nn
 
-from encoder import Encoder
-from decoder import Decoder
+from Encoder import Encoder
+from Decoder import Decoder
 from PE import generate_original_PE, generate_regular_PE
 
-class _Transformer(nn.Module):
+class Transformer(nn.Module):
     """Transformer model from Attention is All You Need.
     A classic transformer model adapted for sequential data.
     Embedding has been replaced with a fully connected layer,

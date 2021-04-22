@@ -3,8 +3,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from multiHeadAttention import MultiHeadAttention, MultiHeadAttentionChunk, MultiHeadAttentionWindow
-from positionwiseFeedForward import PositionwiseFeedForward
+from MultiHeadAttention import MultiHeadAttention, MultiHeadAttentionChunk, MultiHeadAttentionWindow
+from PositionwiseFeedForward import PositionwiseFeedForward
 
 class Encoder(nn.Module):
     """Encoder block from Attention is All You Need.
