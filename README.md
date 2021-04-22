@@ -2,3 +2,5 @@
 
 Multiple tactics were use to model complex seasionality in time-series, such as sinusodal model, seasional ARIMA, dynamic harmonic regression, BATS, and TBATS model.
 
+# TO-DO
+- [ ] Fix bug deep copy for essemble learning
