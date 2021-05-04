@@ -12,3 +12,10 @@ Relace "/some/path" with your M4 data directory. Use `--help` to get the descrip
 ```console
 python main.py --help
 ```
+
+## Current result
+
+
+## Reference: 
+1. ESRNN: 
+2. Transformer: 
