@@ -15,6 +15,7 @@ def main(args):
 
   if args.num_obs: num_obs = args.num_obs
   else: num_obs = 100000
+  # else: num_obs = 4000
 
   if args.use_cpu == 1: config['device'] = 'cpu'
   else: assert torch.cuda.is_available(), 'No cuda devices detected. You can try using CPU instead.'
@@ -22,8 +23,7 @@ def main(args):
   print('Reading data')
   X_train_df, y_train_df, X_test_df, y_test_df = prepare_m4_data(dataset_name=args.dataset,
                                                                  directory=args.results_directory,
-                                                                 num_obs=num_obs)
-                                                       
+                                                                 num_obs=num_obs)                                      
   #Instantiate the model
   model = DeployedESTransformer(max_epochs = config['train_parameters']['max_epochs'],
                                 batch_size = config['train_parameters']['batch_size'],
@@ -71,6 +71,12 @@ def main(args):
 
   # Predict on test set
   y_hat_df = model.predict(X_test_df)
+
+  # Predict on train set
+  y_train_hat_df = model.predict(X_train_df)
+  X_test_df.to_csv('D:\\Sang\\ESRNN_result\\train_result\\train_X_quarterly.csv')
+  y_train_df.to_csv('D:\\Sang\\ESRNN_result\\train_result\\train_y_quarterly.csv')
+  y_train_hat_df.to_csv('D:\\Sang\\ESRNN_result\\train_result\\train_resid_quarterly.csv')
 
   # Evaluate predictions
   final_owa, final_mase, final_smape = evaluate_prediction_owa(y_hat_df, y_train_df, X_test_df, y_test_df, naive2_seasonality=1)

@@ -222,7 +222,7 @@ class DeployedESTransformer(object):
           print("Testing loss  ({} prc): {:.5f}".format(self.mc.testing_percentile, self.test_loss))
           self.evaluate_model_prediction(self.y_train_df, self.X_test_df, self.y_test_df, self.y_hat_benchmark, epoch=epoch)
           self.estransformer.train()
-
+    
     if verbose: print('Train finished! \n')
 
   def predict(self, X_df, decomposition=False):
