@@ -41,7 +41,7 @@ class DeployedESTransformer(object):
                dropout = 0.3,
                chunk_mode = 'chunk',
                pe = None,
-               pe_period = 24):
+               pe_period = 24, dataset_name = None):
     
     super().__init__()
     self.mc = ModelConfig(max_epochs=max_epochs, batch_size=batch_size, batch_size_test=batch_size_test,
@@ -73,6 +73,8 @@ class DeployedESTransformer(object):
                           chunk_mode = chunk_mode,
                           pe = pe,
                           pe_period = pe_period)
+    self.device = device
+    self.dataset_name = dataset_name
     self._fitted = False
 
   def instantiate_estransformer(self, exogenous_size, n_series):    
@@ -172,6 +174,10 @@ class DeployedESTransformer(object):
       self.transformer_scheduler = StepLR(optimizer=self.transformer_optimizer, 
                                           step_size=self.mc.lr_scheduler_step_size, gamma=self.mc.lr_decay)
 
+    all_epoch = []
+    all_train_loss = []
+    all_test_loss = []
+
     # Loss Functions
     train_tau = self.mc.training_percentile / 100
     train_loss = SmylLoss(tau=train_tau, level_variability_penalty=self.mc.level_variability_penalty)
@@ -215,13 +221,21 @@ class DeployedESTransformer(object):
         print("========= Epoch {} finished =========".format(epoch))
         print("Training time: {}".format(round(time.time()-start, 5)))
         print("Training loss ({} prc): {:.5f}".format(self.mc.training_percentile, self.train_loss))
+        self.test_loss = self.model_evaluation(dataloader, eval_loss)
+        print("Testing loss  ({} prc): {:.5f}".format(self.mc.testing_percentile, self.test_loss))
+        self.evaluate_model_prediction(self.y_train_df, self.X_test_df, self.y_test_df, self.y_hat_benchmark, epoch=epoch)
+        self.estransformer.train()
 
-      if (epoch % self.mc.freq_of_test == 0) and (self.mc.freq_of_test > 0):
-        if self.y_test_df is not None:
-          self.test_loss = self.model_evaluation(dataloader, eval_loss)
-          print("Testing loss  ({} prc): {:.5f}".format(self.mc.testing_percentile, self.test_loss))
-          self.evaluate_model_prediction(self.y_train_df, self.X_test_df, self.y_test_df, self.y_hat_benchmark, epoch=epoch)
-          self.estransformer.train()
+        all_epoch.append(epoch)
+        all_train_loss.append(self.train_loss)
+        all_test_loss.append(self.test_loss)
+
+        converge = pd.DataFrame({'Epoch': all_epoch, 'Train loss': all_train_loss, 'Test loss': all_test_loss})
+        converge.to_csv("D:\\Sang\\hybcast\\hybcast3\\" + self.dataset_name + 'log_' + self.dataset_name +'.csv', index=False)
+
+
+      if (epoch % 100 == 0) or (epoch % 499 == 0):
+        self.save(model_dir="D:\\Sang\\hybcast\\hybcast3\\" + self.dataset_name +'\\model\\', epoch=epoch)
     
     if verbose: print('Train finished! \n')
 
@@ -380,7 +394,7 @@ class DeployedESTransformer(object):
     model_dir = os.path.join(model_parent_dir, '_'.join(model_path))
     return model_dir
 
-  def save(self, model_dir=None, copy=None):
+  def save(self, model_dir=None, copy=None, epoch=None):
     if copy is not None:
         self.mc.copy = copy
 
@@ -391,34 +405,109 @@ class DeployedESTransformer(object):
     if not os.path.exists(model_dir):
       os.makedirs(model_dir)
 
-    transformer_filepath = os.path.join(model_dir, "transformer.model")
-    es_filepath = os.path.join(model_dir, "es.model")
-
     print('Saving model to:\n {}'.format(model_dir)+'\n')
-    torch.save({'model_state_dict': self.es.state_dict()}, es_filepath)
-    torch.save({'model_state_dict': self.transformer.state_dict()}, transformer_filepath)
+    torch.save({'model_state_dict': self.estransformer.state_dict(), 
+                'es_optimizer': self.es_optimizer.state_dict(),
+                'es_scheduler': self.es_scheduler.state_dict(),
+                'transformer_optimizer': self.transformer_optimizer.state_dict(),
+                'transformer_scheduler': self.transformer_scheduler.state_dict(),
+                'epoch': epoch}, model_dir + 'model_epoch_' + str(epoch) + '_' + self.dataset_name)
 
-  def load(self, model_dir=None, copy=None):
+  def load(self, model_dir=None, copy=None, conti_train=False):
+    # Run preprocess to instantialize estransformer and its optimizer
     if copy is not None:
       self.mc.copy = copy
 
     if not model_dir:
       assert self.mc.root_dir
       model_dir = self.get_dir_name()
+    
+    temp_model = torch.load(model_dir, map_location=torch.device(self.device))
+    
+    # Load model 
+    self.estransformer.load_state_dict(temp_model['model_state_dict'])
+    
+    if conti_train:
+        # Instantiate optimizer and scheduler
+        self.es_optimizer = optim.Adam(params=self.estransformer.es.parameters(),
+                                lr=self.mc.learning_rate*self.mc.per_series_lr_multip,
+                                betas=(0.9, 0.999), eps=self.mc.gradient_eps)
 
-    transformer_filepath = os.path.join(model_dir, "transformer.model")
-    es_filepath = os.path.join(model_dir, "es.model")
-    path = Path(es_filepath)
+        self.es_scheduler = StepLR(optimizer=self.es_optimizer, step_size=self.mc.lr_scheduler_step_size, gamma=0.9)
 
-    if path.is_file():
-      print('Loading model from:\n {}'.format(model_dir)+'\n')
+        self.transformer_optimizer = optim.Adam(params=self.estransformer.transformer.parameters(),
+                                              lr=self.mc.learning_rate, betas=(0.9, 0.999), eps=self.mc.gradient_eps,
+                                              weight_decay=self.mc.transformer_weight_decay)
 
-      checkpoint = torch.load(es_filepath, map_location=self.mc.device)
-      self.es.load_state_dict(checkpoint['model_state_dict'])
-      self.es.to(self.mc.device)
+        self.transformer_scheduler = StepLR(optimizer=self.transformer_optimizer, 
+                                          step_size=self.mc.lr_scheduler_step_size, gamma=self.mc.lr_decay)
+        
+        # Load state                                  
+        self.es_optimizer.load_state_dict(temp_model['es_optimizer'])
+        self.es_scheduler.load_state_dict(temp_model['es_scheduler'])
+        self.transformer_optimizer.load_state_dict(temp_model['transformer_optimizer'])
+        self.transformer_scheduler.load_state_dict(temp_model['transformer_scheduler'])
+        self.min_epoch = temp_model['epoch'] 
+        
+        self.train(dataloader=self.train_dataloader, max_epochs=self.mc.max_epochs, warm_start=True, shuffle=True, verbose=True)
 
-      checkpoint = torch.load(transformer_filepath, map_location=self.mc.device)
-      self.transformer.load_state_dict(checkpoint['model_state_dict'])
-      self.transformer.to(self.mc.device)
-    else:
-      print('Model path {} does not exist'.format(path))
+  def preprocess(self, X_df, y_df, X_test_df=None, y_test_df=None, y_hat_benchmark='y_hat_naive2',
+          warm_start=False, shuffle=True, verbose=True):
+    # Transform long dfs to wide numpy
+    assert type(X_df) == pd.core.frame.DataFrame
+    assert type(y_df) == pd.core.frame.DataFrame
+    assert all([(col in X_df) for col in ['unique_id', 'ds', 'x']])
+    assert all([(col in y_df) for col in ['unique_id', 'ds', 'y']])
+    if y_test_df is not None:
+      assert y_hat_benchmark in y_test_df.columns, 'benchmark is not present in y_test_df, use y_hat_benchmark to define it'
+
+    # Storing dfs for OWA evaluation, initializing min_owa
+    self.y_train_df = y_df
+    self.X_test_df = X_test_df
+    self.y_test_df = y_test_df
+    self.min_owa = 4.0
+    self.min_epoch = 0
+
+    self.int_ds = isinstance(self.y_train_df['ds'][0], (int, np.int, np.int64))
+
+    self.y_hat_benchmark = y_hat_benchmark
+
+    X, y = self.long_to_wide(X_df, y_df)
+    assert len(X)==len(y)
+    assert X.shape[1]>=3
+
+    # Exogenous variables
+    unique_categories = np.unique(X[:, 1])
+    self.mc.category_to_idx = dict((word, index) for index, word in enumerate(unique_categories))
+    exogenous_size = len(unique_categories)
+
+    # Create batches (device in mc)
+    self.train_dataloader = Iterator(mc=self.mc, X=X, y=y)
+
+    # Random Seeds (model initialization)
+    torch.manual_seed(self.mc.random_seed)
+    np.random.seed(self.mc.random_seed)
+
+    # Initialize model
+    n_series = self.train_dataloader.n_series
+
+    self.instantiate_estransformer(exogenous_size, n_series)
+
+    # Validating frequencies
+    X_train_frequency = pd.infer_freq(X_df.head()['ds'])
+    y_train_frequency = pd.infer_freq(y_df.head()['ds'])
+    self.frequencies = [X_train_frequency, y_train_frequency]
+
+    if (X_test_df is not None) and (y_test_df is not None):
+        X_test_frequency = pd.infer_freq(X_test_df.head()['ds'])
+        y_test_frequency = pd.infer_freq(y_test_df.head()['ds'])
+        self.frequencies += [X_test_frequency, y_test_frequency]
+
+    assert len(set(self.frequencies)) <= 1, \
+      "Match the frequencies of the dataframes {}".format(self.frequencies)
+
+    self.mc.frequency = self.frequencies[0]
+    print("Infered frequency: {}".format(self.mc.frequency))
+
+    # Train model
+    self._fitted = True

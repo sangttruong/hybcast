@@ -25,7 +25,7 @@ def main(args):
                                                                  directory=args.results_directory,
                                                                  num_obs=num_obs)                                      
   #Instantiate the model
-  model = DeployedESTransformer(max_epochs = config['train_parameters']['max_epochs'],
+  model = DeployedESTransformer(max_epochs = 500,
                                 batch_size = config['train_parameters']['batch_size'],
                                 freq_of_test = config['train_parameters']['freq_of_test'],
                                 learning_rate = float(config['train_parameters']['learning_rate']),
@@ -59,12 +59,12 @@ def main(args):
                                 q = 4,
                                 v = 4,
                                 h = 4,
-                                N = 2,
+                                N = 1,
                                 attention_size = 4,
                                 dropout = 0,
                                 chunk_mode = None, ####################
                                 pe = None, ####################
-                                pe_period = 24) ####################
+                                pe_period = 24, dataset_name = args.dataset) ####################
   # Fit model
   # If y_test_df is provided the model # will evaluate predictions on this set every freq_test epochs
   model.fit(X_train_df, y_train_df, X_test_df, y_test_df)
