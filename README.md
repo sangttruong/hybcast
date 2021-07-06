@@ -70,10 +70,12 @@ Use `--help` to get the description of each argument:
 python src/main.py --help
 ```
 
-## Current result
+## Acknowledgement
+This research has been conducted as a part of internship of Sang Truong at Cummins Inc. (Fall 2019, Winter 2020), Community Health Network Inc. (Fall 2020, Spring 2021), and as indepedent research at DePauw University under the mentorship of Professor Jeff Gropp (Spring 2018, Fall 2019, Spring 2019, Fall 2020, Spring 2021). We thank Shuto Araki for his collaboration during Spring 2018 on theory and implementation of ARIMA and KNN models. We thank Bu Tran for his work on testing the ESTransformer architectures during Spring 2021.
 
+<!-- 
 
 ## Reference: 
 1. ESRNN
 2. Transformer
-
+ -->
