@@ -55,26 +55,43 @@ Time series forecasting is an important research topic in machine learning due t
 
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p> -->
 
+## Requirement
+* Python >= 3.5
+* PyTorch >= 1.7
+* Numpy >= 1.19
+* Matplotlib >= 3.3
 
 ## Usage
-To test the optimal model, change to main.py directory and run the following command: 
+The base code of [ESRNN](https://github.com/kdgutier/esrnn_torch) and [Transformer](https://github.com/maxjcohen/transformer) is in Python. Therefore, for convienient purpose in doing Time Series forcasting research, we also implement ESTransformer in Python. The user can download the data from [M4 Competition data](https://raw.githubusercontent.com/Mcompetitions/M4-methods/master/Dataset/), using our code. Below is a list of currently supported components:
+* Naive:  This benchmark model produces a forecast that is equal to the last observed value for a given time series.
+* Seasonal Naive:  This benchmark model produces a forecast that is equal to
+  the last observed value of the same season for a given time series.
+* Naive2: a popular benchmark model for time series forecasting that automatically adapts
+  to the potential seasonality of a series based on an autocorrelation test.
+  If the series is seasonal, the model composes the predictions of Naive and Seasonal Naive. Otherwise, the model predicts on the simple Naive.
+* Exponential smoothing: Using multiplicative Holt-Winter exponential smoothing to capture the potential error, seasonal, and trend.  
+* Transformer: Using time-series transformer to optimize the trend.
+
+To reproduce an experiment, run the following command: 
 
 ```console
-cd "./hybcast"
-python src/main.py --dataset "Yearly" --gpu_id 0 --use_cpu 0
+cd hybcast/run
+bash experiment1.sh # run a single experiment without gpu
 ```
-Use `--help` to get the description of each argument:
 
-```console
-python src/main.py --help
-```
+As the project is continue to evolve, please direct any question, feedback, or comment to [sttruong@stanford.edu](sttruong@stanford.edu).
 
 ## Acknowledgement
 This research has been conducted as a part of internship of Sang Truong at Cummins Inc. (Fall 2019, Winter 2020), Community Health Network Inc. (Fall 2020, Spring 2021), and as indepedent research at DePauw University under the mentorship of Professor Jeff Gropp (Spring 2018, Fall 2019, Spring 2019, Fall 2020, Spring 2021). We thank Shuto Araki for his collaboration during Spring 2018 on theory and implementation of ARIMA and KNN models. We thank Bu Tran for his work on testing the ESTransformer architectures during Spring 2021.
 
-<!-- 
-
-## Reference: 
-1. ESRNN
-2. Transformer
- -->
+## Citation
+```
+@inproceedings{
+    truong2021hybcast,
+    title={Time-series Forecasting},
+    author={Sang Truong and Jeffrey Gropp},
+    booktitle={},
+    year={2021},
+    url={}
+}
+```
