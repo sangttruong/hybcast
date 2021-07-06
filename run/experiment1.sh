@@ -1,0 +1,1 @@
+python main.py --dataset "Yearly" --gpu_id 0 --use_cpu 0
