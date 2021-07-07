@@ -82,7 +82,7 @@ To install the package, run the following command:
 git clone https://github.com/sangttruong/hybcast.git
 cd hybcast
 python setup.py bdist_wheel sdist
-pip install --user -e 
+pip install --user -e .
 ```
 
 To reproduce an experiment, run the following command:
