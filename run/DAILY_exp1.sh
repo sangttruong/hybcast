@@ -1,0 +1,1 @@
+python run/main.py --cfg run/configs/DAILY_exp1.yml
