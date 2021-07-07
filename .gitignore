@@ -21,3 +21,4 @@ hybcast3_cookie/src/models/.gitkeep
 hybcast.egg-info
 dist
 build
+hybcast/models/__pycache__/__init__.cpython-38.pyc
