@@ -6,6 +6,8 @@ hybcast3/ESTransformer/__pycache__
 hybcast3/ESTransformer/ESRNN/__pycache__
 hybcast3/ESTransformerTransformer/__pycache__
 hybcast3/ESTransformer/Utils/__pycache__
+
+# .gitkeep
 hybcast3_cookie/src/visualization/.gitkeep
 hybcast3_cookie/notebooks/.gitkeep
 hybcast3_cookie/references/.gitkeep
@@ -14,3 +16,8 @@ hybcast3_cookie/models/.gitkeep
 hybcast3_cookie/src/data/.gitkeep
 hybcast3_cookie/src/features/.gitkeep
 hybcast3_cookie/src/models/.gitkeep
+
+# ignore folder
+hybcast.egg-info
+dist
+build
