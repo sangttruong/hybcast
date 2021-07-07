@@ -1,12 +1,14 @@
 import torch
 import torch.nn as nn
 
-import sys, os
-sys.path.append(os.getcwd()+"\\src\\models\\")
+import sys, os, inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
 
-from Encoder import Encoder
-from Decoder import Decoder
-from PE import generate_original_PE, generate_regular_PE
+from models.Encoder import Encoder
+from models.Decoder import Decoder
+from models.PE import generate_original_PE, generate_regular_PE
 
 class Transformer(nn.Module):
     """Transformer model from Attention is All You Need.

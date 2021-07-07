@@ -1,11 +1,13 @@
 import torch.nn as nn
 
-import sys, os
-sys.path.append(os.getcwd()+"\\src\\models\\")
+import sys, os, inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
 
 # Submodel
-from Transformer import Transformer
-from ES import ES
+from models.Transformer import Transformer
+from models.ES import ES
 
 class ESTransformer(nn.Module):
   def __init__(self, mc):

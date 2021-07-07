@@ -1,13 +1,13 @@
-import os
 from six.moves import urllib
-import subprocess
 import numpy as np
 import pandas as pd
 
-import sys
-sys.path.append(os.getcwd()+"\\src\\features\\")
+import sys, inspect, os, subprocess
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
 
-from Comparison import *
+from features.Comparison import *
 
 seas_dict = {'Hourly': {'seasonality': 24, 'input_size': 24,
                        'output_size': 48, 'freq': 'H'},

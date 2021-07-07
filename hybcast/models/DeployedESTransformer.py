@@ -1,4 +1,8 @@
-import os, time, torch, sys
+import os, time, torch, sys, inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
+
 import numpy as np
 import pandas as pd
 
@@ -8,15 +12,12 @@ from pathlib import Path
 from copy import deepcopy
 
 # Utils
-sys.path.append(os.getcwd()+"\\src\\features\\")
-sys.path.append(os.getcwd()+"\\src\\models\\")
+from features.Model_config import *
+from features.Loss import *
+from features.Batch import * 
+from features.Comparison import *
 
-from Model_config import *
-from Loss import *
-from Batch import * 
-from Comparison import *
-
-from ESTransformer import ESTransformer
+from models.ESTransformer import ESTransformer
 
 class DeployedESTransformer(object):
   def __init__(self, max_epochs=15, batch_size=1, batch_size_test=64, freq_of_test=-1,

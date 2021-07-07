@@ -3,11 +3,13 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import sys, os
-sys.path.append(os.getcwd()+"\\src\\models\\")
+import sys, os, inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
 
-from MultiHeadAttention import MultiHeadAttention, MultiHeadAttentionChunk, MultiHeadAttentionWindow
-from PositionwiseFeedForward import PositionwiseFeedForward
+from models.MultiHeadAttention import MultiHeadAttention, MultiHeadAttentionChunk, MultiHeadAttentionWindow
+from models.PositionwiseFeedForward import PositionwiseFeedForward
 
 class Decoder(nn.Module):
     """Decoder block from Attention is All You Need.

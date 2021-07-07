@@ -1,10 +1,13 @@
-import sys, os, torch, argparse
+import sys, os, inspect, torch, argparse
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
 
 from hybcast.models.DeployedESTransformer import DeployedESTransformer
-from hybcast.features.Comparison import *
-from hybcast.data.make_dataset import *
-from hybcast.features.utils_configs import get_config
-
+from features.Comparison import *
+from data.make_dataset import *
+from hybcast.models.utils_configs import get_config
+import argparse
 
 
 def main(args):
@@ -86,8 +89,7 @@ def main(args):
   final_owa, final_mase, final_smape = evaluate_prediction_owa(y_hat_df, y_train_df, X_test_df, y_test_df, naive2_seasonality=1)
 
 if __name__ == '__main__':
-  # Load cmd line args
-  args = parse_args()  
+  # Load cmd line args 
 
   parser = argparse.ArgumentParser(description='Replicate M4 results for the ESRNN model')
   parser.add_argument("--dataset", required=True, type=str,
