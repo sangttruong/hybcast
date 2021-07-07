@@ -72,6 +72,10 @@ The base code of [ESRNN](https://github.com/kdgutier/esrnn_torch) and [Transform
 * Exponential smoothing: Using multiplicative Holt-Winter exponential smoothing to capture the potential error, seasonal, and trend.  
 * Transformer: Using time-series transformer to optimize the trend.
 
+<div style="text-align:center">
+<img src= "./reports/figure/estransformer - main.png"/>
+</div>
+
 To reproduce an experiment, run the following command: 
 
 ```console
