@@ -73,7 +73,7 @@ The base code of [ESRNN](https://github.com/kdgutier/esrnn_torch) and [Transform
 * Transformer: Using time-series transformer to optimize the trend.
 
 <div style="text-align:center">
-<img src= "./reports/figures/estransformer - main.png"/>
+<img src= "./reports/figures/estransformer - main.png" width=50%/>
 </div>
 
 To reproduce an experiment, run the following command: 
