@@ -76,10 +76,18 @@ The base code of [ESRNN](https://github.com/kdgutier/esrnn_torch) and [Transform
 <img width=50% src= "./reports/figures/estransformer - main.png"/>
 </p>
 
-To reproduce an experiment, run the following command: 
 
-```console
-cd hybcast/run
+To install the package, run the following command:
+```
+git clone https://github.com/sangttruong/hybcast.git
+cd hybcast
+python setup.py bdist_wheel sdist
+pip install --user -e 
+```
+
+To reproduce an experiment, run the following command:
+```
+cd run
 bash experiment1.sh # run a single experiment without gpu
 ```
 
