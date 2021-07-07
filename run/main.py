@@ -15,6 +15,7 @@ def main(cfg):
   input_directory = cfg['dataset']['input_directory']
   if input_directory == None: 
     data_dir = parentdir.replace("\hybcast", "")
+    data_dir = parentdir.replace("/hybcast", "")
 
     input_directory = data_dir + "\\hybcast\\data\\external"
     if os.path.isdir(input_directory) == False:
