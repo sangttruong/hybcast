@@ -76,10 +76,6 @@ The base code of [ESRNN](https://github.com/kdgutier/esrnn_torch) and [Transform
 <img width=50% src= "./reports/figures/estransformer - main.png"/>
 </p>
 
-
-To install the package, run the following command:
-
-
 To reproduce an experiment, run the following command:
 ```
 git clone https://github.com/sangttruong/hybcast.git
