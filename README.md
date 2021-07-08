@@ -78,7 +78,7 @@ The base code of [ESRNN](https://github.com/kdgutier/esrnn_torch) and [Transform
 
 
 To install the package, run the following command:
-```
+
 
 To reproduce an experiment, run the following command:
 ```
