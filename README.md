@@ -78,10 +78,7 @@ The base code of [ESRNN](https://github.com/kdgutier/esrnn_torch) and [Transform
 
 To reproduce an experiment, run the following command:
 ```
-git clone https://github.com/sangttruong/hybcast.git
-cd hybcast
-pip install -r requirements.txt
-bash run/DAILY_exp1.sh # run a single experiment on M4 Daily dataset
+python run/main.py --cfg run/configs/DAILY_exp1.yml
 ```
 
 As the project is continue to evolve, please direct any question, feedback, or comment to [sttruong@stanford.edu](sttruong@stanford.edu).

@@ -1,0 +1,42 @@
+device: cuda
+
+dataset: 
+  name: Daily
+  input_directory: 'data/m4/'
+  num_obs: 100000
+
+train_parameters:
+  max_epochs: 500
+  batch_size: 64
+  freq_of_test: 2
+  learning_rate: 1e-2
+  per_series_lr_multip: 0.5
+  lr_scheduler_step_size: 4
+  lr_decay: 0.3333
+  level_variability_penalty: 100
+  testing_percentile: 50
+  training_percentile: 65
+  ensemble: False
+
+ES_parameters:
+  max_periods: 15
+  seasonality: [7]
+  input_size: 7
+  output_size: 14
+  d_input: 13
+  d_output: 14
+  random_seed: 1
+
+Transformer_parameter:
+  transformer_weight_decay: 0.0
+  d_model: 128
+  q: 4
+  v: 4
+  h: 4
+  N: 1
+  attention_size: 4
+  dropout: 0
+  chunk_mode: None 
+  pe: None 
+  pe_period: 24
+
