@@ -48,8 +48,7 @@ class DeployedESTransformer(object):
         self.min_owa = 4.0
         self.min_epoch = 0
 
-        self.int_ds = isinstance(
-            self.y_train_df['ds'][0], (int, np.int, np.int64))
+        self.int_ds = isinstance(self.y_train_df['ds'][0], (int, np.int, np.int64))
 
         self.y_hat_benchmark = y_hat_benchmark
 
@@ -101,8 +100,12 @@ class DeployedESTransformer(object):
         )
 
     def train(
-        self, dataloader, max_epochs, warm_start=False,
-        shuffle=True, verbose=True
+        self,
+        dataloader, 
+        max_epochs, 
+        warm_start=False,
+        shuffle=True, 
+        verbose=True
     ):
 
         if self.config.ensemble:
@@ -112,42 +115,36 @@ class DeployedESTransformer(object):
             print(15*'='+' Training ESTransformer  ' + 15*'=' + '\n')
 
         # Model parameters
-        es_parameters = filter(lambda p: p.requires_grad,
-                               self.estransformer.es.parameters())
+        es_parameters = filter(
+            lambda p: p.requires_grad,
+            self.estransformer.es.parameters()
+        )
         params = sum([np.prod(p.size()) for p in es_parameters])
         print('Number of parameters of ES: ', params)
 
         trans_parameters = filter(
-            lambda p: p.requires_grad, self.estransformer.transformer.parameters())
+            lambda p: p.requires_grad, 
+            self.estransformer.transformer.parameters()
+        )
         params = sum([np.prod(p.size()) for p in trans_parameters])
         print('Number of parameters of Transformer: ', params)
 
         # Optimizers
         if not warm_start:
-            self.es_optimizer = optim.Adam(
-                params=self.estransformer.es.parameters(),
+            params = list(self.estransformer.es.parameters()) \
+                   + list(self.estransformer.transformer.parameters())
+            self.optim = optim.Adam(
+                params=params,
                 lr=self.config.learning_rate*self.config.per_series_lr_multip,
                 betas=(0.9, 0.999),
-                eps=self.config.gradient_eps
-            )
-
-            self.es_scheduler = StepLR(
-                optimizer=self.es_optimizer,
-                step_size=self.config.lr_scheduler_step_size,
-                gamma=0.9
-            )
-
-            self.transformer_optimizer = optim.Adam(
-                params=self.estransformer.transformer.parameters(),
-                lr=self.config.learning_rate, betas=(0.9, 0.999),
                 eps=self.config.gradient_eps,
                 weight_decay=self.config.transformer_weight_decay
             )
 
-            self.transformer_scheduler = StepLR(
-                optimizer=self.transformer_optimizer,
+            self.scheduler = StepLR(
+                optimizer=self.optim,
                 step_size=self.config.lr_scheduler_step_size,
-                gamma=self.config.lr_decay
+                gamma=0.9
             )
 
         all_epoch = []
@@ -155,38 +152,27 @@ class DeployedESTransformer(object):
         all_test_loss = []
 
         # Loss Functions
-        train_tau = self.config.training_percentile / 100
         train_loss = SmylLoss(
-            tau=train_tau,
+            tau=self.config.training_percentile / 100,
             level_variability_penalty=self.config.level_variability_penalty
         )
-
-        eval_tau = self.config.testing_percentile / 100
-        eval_loss = PinballLoss(tau=eval_tau)
+        eval_loss = PinballLoss(tau=self.config.testing_percentile / 100)
 
         for epoch in range(max_epochs):
             self.estransformer.train()
             start = time.time()
-            if shuffle:
-                dataloader.shuffle_dataset(random_seed=epoch)
+            if shuffle: dataloader.shuffle_dataset(random_seed=epoch)
             losses = []
             for j in range(dataloader.n_batches):
-                self.es_optimizer.zero_grad()
-                self.transformer_optimizer.zero_grad()
-
+                self.optim.zero_grad()
                 batch = dataloader.get_batch()
                 windows_y, windows_y_hat, levels = self.estransformer(batch)
-
-                # Pinball loss on normalized values
                 loss = train_loss(windows_y, windows_y_hat, levels)
                 losses.append(loss.data.cpu().numpy())
                 loss.backward()
-                self.transformer_optimizer.step()
-                self.es_optimizer.step()
+                self.optim.step()
 
-            # Decay learning rate
-            self.es_scheduler.step()
-            self.transformer_scheduler.step()
+            self.scheduler.step()
 
             if self.config.ensemble:
                 copy_estransformer = deepcopy(self.estransformer)
@@ -200,28 +186,25 @@ class DeployedESTransformer(object):
                 print("========= Epoch {} finished =========".format(epoch))
                 print("Training time: {}".format(round(time.time()-start, 5)))
                 print("Training loss ({} prc): {:.5f}".format(
-                    self.config.training_percentile, self.train_loss))
+                    self.config.training_percentile, self.train_loss)
+                )
                 self.test_loss = self.model_evaluation(dataloader, eval_loss)
                 print("Testing loss  ({} prc): {:.5f}".format(
                     self.config.testing_percentile, self.test_loss))
                 self.evaluate_model_prediction(
-                    self.y_train_df, self.X_test_df, self.y_test_df, self.y_hat_benchmark, epoch=epoch)
+                    self.y_train_df, 
+                    self.X_test_df,
+                    self.y_test_df, 
+                    self.y_hat_benchmark, 
+                    epoch=epoch
+                )
                 self.estransformer.train()
 
                 all_epoch.append(epoch)
                 all_train_loss.append(self.train_loss)
                 all_test_loss.append(self.test_loss)
 
-                converge = pd.DataFrame(
-                    {'Epoch': all_epoch, 'Train loss': all_train_loss, 'Test loss': all_test_loss})
-                # converge.to_csv("D:\\Sang\\hybcast\\hybcast3\\" + self.config.dataset_name + 'log_' + self.config.dataset_name +'.csv', index=False)
-
-            if (epoch % 100 == 0) or (epoch % 499 == 0):
-                # self.save(model_dir="D:\\Sang\\hybcast\\hybcast3\\" + self.config.dataset_name +'\\model\\', epoch=epoch)
-                None
-
-        if verbose:
-            print('Train finished! \n')
+        if verbose: print('Train finished')
 
     def predict(self, X_df, decomposition=False):
         assert type(X_df) == pd.core.frame.DataFrame
@@ -413,10 +396,8 @@ class DeployedESTransformer(object):
         print('Saving model to:\n {}'.format(model_dir)+'\n')
         torch.save({
             'model_state_dict': self.estransformer.state_dict(),
-            'es_optimizer': self.es_optimizer.state_dict(),
-            'es_scheduler': self.es_scheduler.state_dict(),
-            'transformer_optimizer': self.transformer_optimizer.state_dict(),
-            'transformer_scheduler': self.transformer_scheduler.state_dict(),
+            'optim': self.optim.state_dict(),
+            'scheduler': self.scheduler.state_dict(),
             'epoch': epoch
         },
             f'{model_dir}model_epoch_{epoch}_{self.config.dataset_name}'
@@ -439,34 +420,18 @@ class DeployedESTransformer(object):
 
         if conti_train:
             # Instantiate optimizer and scheduler
-            self.es_optimizer = optim.Adam(
+            self.optim = optim.Adam(
                 params=self.estransformer.es.parameters(),
                 lr=self.config.learning_rate*self.config.per_series_lr_multip,
                 betas=(0.9, 0.999), eps=self.config.gradient_eps
             )
 
-            self.es_scheduler = StepLR(
-                optimizer=self.es_optimizer, step_size=self.config.lr_scheduler_step_size, gamma=0.9)
-
-            self.transformer_optimizer = optim.Adam(
-                params=self.estransformer.transformer.parameters(),
-                lr=self.config.learning_rate, betas=(0.9, 0.999), eps=self.config.gradient_eps,
-                weight_decay=self.config.transformer_weight_decay
-            )
-
-            self.transformer_scheduler = StepLR(
-                optimizer=self.transformer_optimizer,
-                step_size=self.config.lr_scheduler_step_size,
-                gamma=self.config.lr_decay
-            )
+            self.scheduler = StepLR(
+                optimizer=self.optim, step_size=self.config.lr_scheduler_step_size, gamma=0.9)
 
             # Load state
-            self.es_optimizer.load_state_dict(temp_model['es_optimizer'])
-            self.es_scheduler.load_state_dict(temp_model['es_scheduler'])
-            self.transformer_optimizer.load_state_dict(
-                temp_model['transformer_optimizer'])
-            self.transformer_scheduler.load_state_dict(
-                temp_model['transformer_scheduler'])
+            self.optim.load_state_dict(temp_model['optim'])
+            self.scheduler.load_state_dict(temp_model['scheduler'])
             self.min_epoch = temp_model['epoch']
 
             self.train(
