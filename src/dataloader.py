@@ -30,8 +30,8 @@ class Batch():
         self.y = self.y.to(device)
         self.categories = self.categories.to(device)
 
-class Iterator(object):
-    """ Time Series Iterator.
+class DataLoader(object):
+    """ Time Series DataLoader.
     Parameters
     ----------
     mc: ModelConfig object
@@ -47,7 +47,7 @@ class Iterator(object):
     Returns
     ----------
     self : object
-        Iterator method get_batch() returns a batch of time
+        DataLoader method get_batch() returns a batch of time
         series objects defined by the Batch class.
     """
     def __init__(self, mc, X, y, weights=None):

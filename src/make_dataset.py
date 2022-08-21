@@ -1,9 +1,8 @@
 from six.moves import urllib
-import numpy as np
 import pandas as pd
-import sys, inspect, os, subprocess
+import os
 
-from src.comparison import *
+from src.metrics import Naive2
 
 seas_dict = {'Hourly': {'seasonality': 24, 'input_size': 24,
                        'output_size': 48, 'freq': 'H'},

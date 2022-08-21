@@ -1,7 +1,7 @@
 from src.models.ESTransformer import ESTransformer
-from src.comparison import owa
+from src.metrics import owa
 from src.loss import SmylLoss, PinballLoss
-from src.batch import Iterator
+from src.dataloader import DataLoader
 
 import torch
 import torch.optim as optim
@@ -63,7 +63,7 @@ class DeployedESTransformer(object):
         exogenous_size = len(unique_categories)
 
         # Create batches (device in mc)
-        self.train_dataloader = Iterator(mc=self.config, X=X, y=y)
+        self.train_dataloader = DataLoader(mc=self.config, X=X, y=y)
 
         # Random Seeds (model initialization)
         torch.manual_seed(self.config.random_seed)
@@ -477,7 +477,7 @@ class DeployedESTransformer(object):
         exogenous_size = len(unique_categories)
 
         # Create batches (device in mc)
-        self.train_dataloader = Iterator(mc=self.config, X=X, y=y)
+        self.train_dataloader = DataLoader(mc=self.config, X=X, y=y)
 
         # Random Seeds (model initialization)
         torch.manual_seed(self.config.random_seed)

@@ -2,7 +2,7 @@ import torch
 from argparse import Namespace, ArgumentParser
 from src.config import cfg
 from src.make_dataset import prepare_m4_data
-from src.comparison import evaluate_prediction_owa
+from src.metrics import evaluate_prediction_owa
 from src.models.DeployedESTransformer import DeployedESTransformer
 
 if __name__ == '__main__':

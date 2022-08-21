@@ -29,7 +29,7 @@ ES_parameters:
 
 Transformer_parameter:
   transformer_weight_decay: 0.0
-  d_model: 128
+  d_model: 64 # 128
   q: 4
   v: 4
   h: 4
