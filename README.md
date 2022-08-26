@@ -55,14 +55,8 @@ Time series forecasting is an important research topic in machine learning due t
 
 <p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p> -->
 
-## Requirement
-* Python >= 3.5
-* PyTorch >= 1.7
-* Numpy >= 1.19
-* Matplotlib >= 3.3
-
 ## Usage
-The base code of [ESRNN](https://github.com/kdgutier/esrnn_torch) and [Transformer](https://github.com/maxjcohen/transformer) is in Python. Therefore, for convienient purpose in doing Time Series forcasting research, we also implement ESTransformer in Python. The user can download the data from [M4 Competition data](https://raw.githubusercontent.com/Mcompetitions/M4-methods/master/Dataset/), using our code. Below is a list of currently supported components:
+Below is a list of currently supported components:
 * Naive:  This benchmark model produces a forecast that is equal to the last observed value for a given time series.
 * Seasonal Naive:  This benchmark model produces a forecast that is equal to
   the last observed value of the same season for a given time series.
@@ -72,13 +66,10 @@ The base code of [ESRNN](https://github.com/kdgutier/esrnn_torch) and [Transform
 * Exponential smoothing: Using multiplicative Holt-Winter exponential smoothing to capture the potential error, seasonal, and trend.  
 * Transformer: Using time-series transformer to optimize the trend.
 
-<p align="center">
-<img width=50% src= "./reports/figures/estransformer - main.png"/>
-</p>
-
 To reproduce an experiment, run the following command:
 ```
-python run/main.py --cfg run/configs/DAILY_exp1.yml
+source shell/add_pwd_to_pythonpath.sh
+python examples/main.py --cfg examples/daily.yml
 ```
 
 As the project is continue to evolve, please direct any question, feedback, or comment to [sttruong@stanford.edu](sttruong@stanford.edu).
