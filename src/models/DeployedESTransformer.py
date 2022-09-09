@@ -203,7 +203,7 @@ class DeployedESTransformer(object):
                 all_epoch.append(epoch)
                 all_train_loss.append(self.train_loss)
                 all_test_loss.append(self.test_loss)
-
+                self.save(epoch=epoch)
         if verbose: print('Train finished')
 
     def predict(self, X_df, decomposition=False):
