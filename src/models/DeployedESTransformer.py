@@ -133,6 +133,7 @@ class DeployedESTransformer(object):
         if not warm_start:
             params = list(self.estransformer.es.parameters()) \
                    + list(self.estransformer.transformer.parameters())
+                   
             self.optim = optim.Adam(
                 params=params,
                 lr=self.config.learning_rate*self.config.per_series_lr_multip,

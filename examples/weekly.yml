@@ -2,7 +2,7 @@ device: cuda
 
 dataset: 
   name: Weekly
-  input_directory: None
+  input_directory: 'data/m4/'
   num_obs: 100000
 
 train_parameters:
@@ -28,6 +28,7 @@ ES_parameters:
   random_seed: 2
 
 Transformer_parameter:
+  transformer_weight_decay: 0.0
   d_model: 128
   q: 4
   v: 4
