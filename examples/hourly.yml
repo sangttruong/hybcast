@@ -2,7 +2,7 @@ device: cuda
 
 dataset: 
   name: Hourly
-  input_directory: None
+  input_directory: 'data/m4/'
   num_obs: 100000
 
 train_parameters:
